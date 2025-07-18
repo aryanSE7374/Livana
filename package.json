@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "Aryan Shrivastav",
   "license": "ISC",
   "description": "A web platform for booking and hosting unique stays worldwide. Designed for seamless booking and hosting experiences.",
   "dependencies": {
     "ejs": "^3.1.10",
+    "ejs-mate": "^4.0.0",
     "express": "^5.1.0",
     "method-override": "^3.0.0",
     "mongoose": "^8.16.3"
