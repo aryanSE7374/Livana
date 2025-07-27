@@ -5,6 +5,8 @@ const ExpressError = require("../utils/ExpressError.js");
 const {listingSchema } = require("../schema.js");
 const Listing = require("../models/listing.js");
 
+
+// const mongoose = require("mongoose"); // wiil be adding this module for the check Listing_ID feature, future commits
 // ------------------------------------------------------------------------------------------- //
 
 // to validate the listing schema while posting a listing into the DB using npm-joi
@@ -41,6 +43,7 @@ router.get("/" , wrapAsync(
 // ------------------------------------------------------------------------------------------- //
 
 // New and Create Route
+
 // 1. GET/listings/new -> returns a form
 // 2. On Submitting the from -> POST/listings
 
@@ -93,6 +96,7 @@ router.post("/" , validateListing, wrapAsync (async (req , res, next )=>{
 
     // console.log(newListing);
     await newListing.save();
+    req.flash("success" , "New Listing Created!");
     console.log("newListing saved successfully! redirecting to the listings home page...");
     console.log("------------------------------------------------------------------------");
     res.redirect("/listings");
@@ -108,7 +112,17 @@ router.get("/:id", wrapAsync(
   async (req,res)=>{
     let {id} = req.params;
     console.log(`request recieved to show the details of id : ${id}`);
+    // Check if ID is a valid ObjectId
+    // if (!mongoose.Types.ObjectId.isValid(id)) {
+    //   // Return a custom 404 page or error response
+    //   return res.status(404).render("error.ejs", { message: 'Invalid Listing ID' });
+    // }
     const listing = await Listing.findById(id).populate("reviews");
+    if(!listing){
+      req.flash("error" , "Listing you requested for does not exist!");
+      return res.redirect("/listings");
+    }
+
     console.log("------------------------------------------------------------------------");
     res.render("listings/show.ejs" , {listing});
   }
@@ -124,7 +138,16 @@ router.get("/:id/edit" , wrapAsync(
   async (req,res)=>{
     let {id} = req.params;
     console.log(`edit request recieved to get the form to edit details of id : ${id}`);
+    // Check if ID is a valid ObjectId
+    // if (!mongoose.Types.ObjectId.isValid(id)) {
+    //   // Return a custom 404 page or error response
+    //   return res.status(404).render("error.ejs", { message: 'Invalid Listing ID' });
+    // }
     const listing = await Listing.findById(id);
+    if(!listing){
+      req.flash("error" , "Listing you requested for does not exist!");
+      return res.redirect("/listings");
+    }
     console.log("------------------------------------------------------------------------");
     res.render("listings/edit.ejs" , {listing});
   }
@@ -138,6 +161,7 @@ router.put("/:id" , validateListing, wrapAsync(
     // need more explaination...how deconstructed and req.body from where??
     await Listing.findByIdAndUpdate(id , {...req.body.listing});
     console.log("------------------------------------------------------------------------");
+    req.flash("success" , "Listing Updated!");
     // res.redirect("/listings");
     res.redirect(`/listings/${id}`);
 
@@ -157,6 +181,7 @@ router.delete("/:id" , wrapAsync(
     let deletedListing = await Listing.findByIdAndDelete(id);
     console.log("deleted listing : ");
     console.log(deletedListing);
+    req.flash("success" , "Listing Deleted!");
     console.log("redirecting to the listings home page...");
     console.log("------------------------------------------------------------------------");
     res.redirect("/listings");

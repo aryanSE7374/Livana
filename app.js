@@ -4,14 +4,17 @@ const PORT = 8080;
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listing.js");
+// const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const wrapAsync = require("./utils/wrapAsync.js");
+// const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema , reviewSchema} = require("./schema.js");
-const Review = require("./models/review.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+
+// const {listingSchema , reviewSchema} = require("./schema.js");
+// const Review = require("./models/review.js");
 
 const listings = require("./routes/listing.js");
 const reviews = require("./routes/review.js");
@@ -51,18 +54,37 @@ app.use(express.urlencoded({extended : true}));
 app.use(methodOverride("_method"));
 app.engine('ejs' , ejsMate);
 app.use(express.static(path.join(__dirname , "/public")));
-app.use(express.json());
+// app.use(express.json());
+
+const sessionOptions = {
+  secret : "supersecretcode",
+  resave : false,
+  saveUninitialized : true,
+  cooke : {
+    expires : Date.now() + 7*24*60*60*1000 ,
+    maxAge :  7*24*60*60*1000 ,
+    httpOnly : true ,
+  }
+};
 
 // ------------------------------------------------------------------------------------------- //
 
 app.get("/" , (req,res)=>{
-    res.send("Welcome to the root!");
-    console.log("--------------------------------root------------------------------------");
+  res.send("Welcome to the root!");
+  console.log("--------------------------------root------------------------------------");
 });
 
-
-
 // ------------------------------------------------------------------------------------------- //
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+app.use((req , res , next)=>{
+  res.locals.success = req.flash("success"); // if there exists a success message , then only it will send the data to the viewport engine(s)
+  res.locals.error = req.flash("error");
+  // console.log("res.locals.success : ",res.locals.success);
+  next();
+});
 
 app.use("/listings" , listings);
 app.use("/listings/:id/reviews" , reviews);
