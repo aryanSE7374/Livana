@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
-const ExpressError = require("../utils/ExpressError.js");
-const {listingSchema } = require("../schema.js");
+// const ExpressError = require("../utils/ExpressError.js");
+// const {listingSchema } = require("../schema.js");
 const Listing = require("../models/listing.js");
+const {isLoggedIn , isOwner, validateListing} = require("../middleware.js");
 
 
 // const mongoose = require("mongoose"); // wiil be adding this module for the check Listing_ID feature, future commits
@@ -11,18 +12,7 @@ const Listing = require("../models/listing.js");
 
 // to validate the listing schema while posting a listing into the DB using npm-joi
 
-const validateListing = (req , res , next)=>{
-  console.log("validateListing is being called!");
-  let {error} = listingSchema.validate(req.body);
-  console.dir(error);
-  if(error){
-    let errMsg = error.details.map((el)=>el.message).join(",");
-    console.log("errMsg = ",errMsg);
-    throw new ExpressError(400 , errMsg);
-  }else{
-    next();
-  }
-}
+// validateListing method shifeted to ../middleware.js
 
 
 // ------------------------------------------------------------------------------------------- //
@@ -48,15 +38,24 @@ router.get("/" , wrapAsync(
 // 2. On Submitting the from -> POST/listings
 
 // New Route
-router.get("/new" , (req,res)=>{
+router.get("/new" , isLoggedIn , (req,res)=>{
   console.log("request for new form recieved!");
+
+  // console.log("user details : " , req.user);
   console.log("------------------------------------------------------------------------");
+  // below part is shifted to isLoggedIn middleware
+  // if(!req.isAuthenticated()){
+  //   console.log("authentication failed!");
+  //   console.log("------------------------------------------------------------------------");
+  //   req.flash("error" , "You must be logged-in to create Listing");
+  //   return res.redirect("/login");
+  // }
   res.render("listings/new.ejs");
-});
+});  
 
 // Create Route
-
-router.post("/" , validateListing, wrapAsync (async (req , res, next )=>{
+ 
+router.post("/" , isLoggedIn , validateListing, wrapAsync (async (req , res, next )=>{
     // let {title , description , image, price , country , location} = req.body;
     // let listing = req.body.listing;
     console.log("post request recieved");
@@ -95,6 +94,8 @@ router.post("/" , validateListing, wrapAsync (async (req , res, next )=>{
 
 
     // console.log(newListing);
+    // console.log("req.user : ",req.user);
+    newListing.owner = req.user._id;
     await newListing.save();
     req.flash("success" , "New Listing Created!");
     console.log("newListing saved successfully! redirecting to the listings home page...");
@@ -117,12 +118,23 @@ router.get("/:id", wrapAsync(
     //   // Return a custom 404 page or error response
     //   return res.status(404).render("error.ejs", { message: 'Invalid Listing ID' });
     // }
-    const listing = await Listing.findById(id).populate("reviews");
+
+    // nested populate : populate all auhtor for all reviews for all listings
+    const listing = await Listing.findById(id)
+    .populate({path : "reviews",
+      populate :{
+        path : "author",
+      },
+    })
+    .populate("owner");
+    
     if(!listing){
+      console.log("Listing user requested for does not exist!");
       req.flash("error" , "Listing you requested for does not exist!");
       return res.redirect("/listings");
     }
-
+    console.log("listing object : ",listing);
+    
     console.log("------------------------------------------------------------------------");
     res.render("listings/show.ejs" , {listing});
   }
@@ -134,7 +146,7 @@ router.get("/:id", wrapAsync(
 // Update : Edit and Update Route
 
 // 1. Edit Route -> GET/listings/:id/edit => returns edit form
-router.get("/:id/edit" , wrapAsync(
+router.get("/:id/edit" , isLoggedIn , isOwner ,  wrapAsync(
   async (req,res)=>{
     let {id} = req.params;
     console.log(`edit request recieved to get the form to edit details of id : ${id}`);
@@ -154,10 +166,10 @@ router.get("/:id/edit" , wrapAsync(
 ));
 
 // 2. Update route -> On submitting the form => PUT/listings/:id
-router.put("/:id" , validateListing, wrapAsync(
+router.put("/:id" , isLoggedIn , isOwner , validateListing, wrapAsync(
   async (req , res)=>{
     let {id} = req.params;
-    console.log(`put request recieved for the id : ${id}`);
+    // console.log(`put request recieved for the id : ${id}`);
     // need more explaination...how deconstructed and req.body from where??
     await Listing.findByIdAndUpdate(id , {...req.body.listing});
     console.log("------------------------------------------------------------------------");
@@ -174,7 +186,7 @@ router.put("/:id" , validateListing, wrapAsync(
 // Delete Route 
 // DELETE/listings/:id
 
-router.delete("/:id" , wrapAsync(
+router.delete("/:id" , isLoggedIn , isOwner , wrapAsync(
   async (req,res)=>{
     let {id} = req.params;
     console.log(`delete request recieved for the id : ${id}`);

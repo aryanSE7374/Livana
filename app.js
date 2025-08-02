@@ -94,6 +94,8 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req , res , next)=>{
   res.locals.success = req.flash("success"); // if there exists a success message , then only it will send the data to the viewport engine(s)
   res.locals.error = req.flash("error");
+  // to make sure the currently logged-in user infomration is accessible in every EJS file without passing it explicitly every time.
+  res.locals.currUser = req.user;
   // console.log("res.locals.success : ",res.locals.success);
   next();
 });
