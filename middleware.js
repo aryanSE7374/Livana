@@ -40,7 +40,7 @@ module.exports.isOwner = async (req,res,next)=>{
 module.exports.validateListing = (req , res , next)=>{
   console.log("validateListing is being called!");
   let {error} = listingSchema.validate(req.body);
-  console.dir(error);
+  console.dir("error : ",error);
   if(error){
     let errMsg = error.details.map((el)=>el.message).join(",");
     console.log("errMsg = ",errMsg);

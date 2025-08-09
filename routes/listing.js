@@ -6,8 +6,9 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const Listing = require("../models/listing.js");
 const {isLoggedIn , isOwner, validateListing} = require("../middleware.js");
 const ListingController = require("../controllers/listings.js");
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const multer  = require('multer');
+const {storage} = require("../cloudConfig.js");
+const upload = multer({ storage });
 
 
 // const mongoose = require("mongoose"); // wiil be adding this module for the check Listing_ID feature, future commits
@@ -26,12 +27,12 @@ const upload = multer({ dest: 'uploads/' })
 // create route
 router.route("/")
 .get( wrapAsync(ListingController.index))
-// .post(isLoggedIn , validateListing, wrapAsync (ListingController.createLisitng));
-.post(upload.single('listing[image]'),(req,res)=>{
-    console.log("req.body : ",req.body);
-    console.log("req.file : ",req.file);
-    res.send(req.file);
-});
+.post(
+    isLoggedIn , 
+    upload.single('listing[image]'), 
+    validateListing, 
+    wrapAsync (ListingController.createLisitng)
+);
 
 // new route
 router.route("/new")

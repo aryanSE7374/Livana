@@ -23,13 +23,14 @@ module.exports.renderNewForm = (req,res)=>{
 };
 
 module.exports.createLisitng = async (req , res, next )=>{
-    // let {title , description , image, price , country , location} = req.body;
-    // let listing = req.body.listing;
+
+    let url = req.file.path;
+    let filename = req.file.filename;
+
     console.log("post request recieved");
-    console.log("req.body: -- ",req.body);
+    console.log("req.body: -- ",req.body , "Image :- url:" , url, "\nfilename:" , filename);
 
     const newListing = new Listing(req.body.listing);
-    console.log(`new listing object created : ${newListing}`);
 
     // -----------------------------method 1---------------------------------- //
     /*
@@ -59,10 +60,9 @@ module.exports.createLisitng = async (req , res, next )=>{
     // ------------------------------------------------------------------------------------------- //
 
 
-
-    // console.log(newListing);
-    // console.log("req.user : ",req.user);
     newListing.owner = req.user._id;
+    newListing.image = {url , filename};
+    console.log(`new listing object created : ${newListing}`);
     await newListing.save();
     req.flash("success" , "New Listing Created!");
     console.log("newListing saved successfully! redirecting to the listings home page...");
