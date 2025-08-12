@@ -113,15 +113,28 @@ module.exports.renderEditForm = async (req,res)=>{
       req.flash("error" , "Listing you requested for does not exist!");
       return res.redirect("/listings");
     }
+
+    let originalImageUrl = listing.image.url;
+    originalImageUrl  = originalImageUrl.replace("/upload" , "/upload/w_250");
+
     console.log("------------------------------------------------------------------------");
-    res.render("listings/edit.ejs" , {listing});
+    res.render("listings/edit.ejs" , {listing , originalImageUrl});
   };
 
 module.exports.updateListing = async (req , res)=>{
     let {id} = req.params;
-    // console.log(`put request recieved for the id : ${id}`);
+    console.log(`put request recieved for the id : ${id}`);
     // need more explaination...how deconstructed and req.body from where??
-    await Listing.findByIdAndUpdate(id , {...req.body.listing});
+    let listing = await Listing.findByIdAndUpdate(id , {...req.body.listing});
+
+    // if(req.file){} // alternative
+    if(typeof req.file !== "undefined"){
+      let url = req.file.path;
+      let filename = req.file.filename;
+      listing.image = {url , filename};
+      await listing.save();
+    }
+    
     console.log("------------------------------------------------------------------------");
     req.flash("success" , "Listing Updated!");
     // res.redirect("/listings");

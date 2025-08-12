@@ -43,7 +43,13 @@ router.route("/new")
 // delete route
 router.route("/:id")
 .get(wrapAsync(ListingController.showListing))
-.put( isLoggedIn , isOwner , validateListing, wrapAsync(ListingController.updateListing))
+.put( 
+    isLoggedIn , 
+    isOwner , 
+    upload.single('listing[image]'), 
+    validateListing, 
+    wrapAsync(ListingController.updateListing)
+)
 .delete( isLoggedIn , isOwner , wrapAsync(ListingController.destroyListing));
 
 // edit route
