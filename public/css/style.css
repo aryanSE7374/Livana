@@ -130,3 +130,38 @@ body{
     height: 400px;
     width: 80vh;
 }
+
+/* Map Menu */
+#menu {
+    position: absolute;
+    background: #efefef;
+    padding: 10px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+/* 1. Create a positioning context */
+.map-container {
+    position: relative;
+}
+
+/* 2. Make map responsive and set a border-radius */
+/* #map { */
+    /* height: 400px; */
+    /* width: 100%;  */
+    /* Make map fill its container */
+    /* border-radius: 15px; */
+/* } */
+
+/* 3. Style and position the menu */
+#menu {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.85); /* Semi-transparent background */
+    padding: 10px;
+    font-family: 'Open Sans', sans-serif;
+    z-index: 1; /* Ensures menu is on top of the map */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Adds a subtle shadow */
+}

@@ -2,12 +2,13 @@
 
 <script>
     const mapToken = "<%= process.env.MAP_TOKEN %>";
+    // const coordinates = <%- JSON.stringify(listing.geometry.coordinates) %>; 
+    const listing = <%- JSON.stringify(listing) %>; // vs code generates a warning , ignore that
 </script>
 
 <div class="row">
     <div class="col-8 offset-3">
         <h3><b><%= listing.title  %></b></h3>
-         <!-- <h3><%= listing.title  %></h3> -->
     </div>
         
     <div class="card col-6 offset-3 show-card listing-card">
@@ -91,9 +92,26 @@
         </div>
         <% } %>
     </div>
+    <!-- Show Map -->
     <div class="col-8 offset-3 mb-3">
         <h3>Where you will be</h3>
-        <div id="map" ></div>
+        <div class="map-container">
+            <div id="map" ></div>
+            <div id="menu">
+                <input id="standard-satellite" type="radio" name="rtoggle" value="satellite">
+                <!-- See a list of Mapbox-hosted public styles at -->
+                <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
+                <label for="standard-satellite">standard-satellite</label>
+                <input id="light-v11" type="radio" name="rtoggle" value="light">
+                <label for="light-v11">light</label>
+                <input id="dark-v11" type="radio" name="rtoggle" value="dark">
+                <label for="dark-v11">dark</label>
+                <input id="standard" type="radio" name="rtoggle" value="streets" checked="checked">
+                <label for="standard">streets</label>
+                <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors">
+                <label for="outdoors-v12">outdoors</label>
+            </div>
+        </div>
     </div>
 </div>
 <script src="/js/map.js"></script>
