@@ -20,7 +20,12 @@
 
             <div class="mb-3">
                 Original Listing Image <br>
-                <img src="<%= originalImageUrl %>" alt="Listing Image" />
+                <% if(originalImageUrl.includes("/upload")){ %>
+                    <img src="<%= originalImageUrl %>" alt="Listing Image" />
+                <% } else{ %>
+                    <img src="<%= originalImageUrl %>" width="250" alt="Listing Image" />
+                <% } %>
+                
             </div>
             
             <div class="mb-3">

@@ -1,9 +1,280 @@
 <% layout("/layouts/boilerplate")  %>
-<!-- <%= success  %> -->
-<h3>All Listings</h3>
+<!-- <h3>All Listings</h3> -->
 <!-- <form method="get" action="/listings/new">
     <button>Create New Listing</button>
 </form> -->
+
+<!-- <style>
+
+    /* General styling */
+    #filters{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;  /* center on all screen sizes */
+
+    }
+    .filter{
+        text-align: center;
+        margin-right: 2rem;
+        margin-top: 2rem;
+        opacity: 0.7;
+    }
+    .filter:hover{
+        opacity: 1;
+        cursor: pointer;
+        transform: scale(1.2);
+        /* transition: transform 0.2s ease; */
+        transition: all 0.2s ease-in-out;
+
+    }
+    .filter p{
+        font-size: 0.8rem;
+    }
+</style> -->
+
+<!-- --------------------------------------------------------------------------- -->
+
+<style>
+    /* Parent wrapper to center the main components */
+    .filters-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin: 1rem auto;
+        padding: 0 1rem;
+        gap: 1.5rem;
+        box-sizing: border-box;
+    }
+
+    /* NEW: Container for the filter bar and its expand button */
+    .filters-container {
+        display: flex;
+        align-items: center;
+        flex-grow: 1; /* Allows it to take available space */
+    }
+
+    /* MODIFIED: The main filter bar */
+    #filters {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 1rem;
+        
+        /* --- Shrink/Expand Logic --- */
+        max-width: 0; /* Initially shrunk */
+        padding: 0;
+        overflow: hidden; /* Hide the icons when shrunk */
+        white-space: nowrap; /* Prevent text wrapping inside */
+        opacity: 0; /* Fade out */
+        transition: max-width 0.5s ease, padding 0.5s ease, opacity 0.3s ease; /* Smooth transition */
+    }
+
+    /* NEW: Styles for the EXPANDED state */
+    .filters-container.expanded #filters {
+        max-width: 800px; /* Expand to a large width */
+        padding: 0.5rem 1rem; /* Restore padding */
+        overflow-x: auto; /* Make it scrollable again */
+        opacity: 1; /* Fade in */
+    }
+
+
+    /* NEW: Styles for the expand button */
+    #expand-filters-btn {
+        border-radius: 1rem;
+        margin-left: 1rem; /* Space between bar and button */
+        flex-shrink: 0; /* Prevent the button from shrinking */
+    }
+
+    /* When expanded, move the button to the left of the bar */
+    .filters-container.expanded #expand-filters-btn {
+        order: -1; /* This is a flexbox trick to change the visual order */
+        margin-left: 0;
+        margin-right: 1rem;
+    }
+
+
+    /* Your existing tax-toggle and other styles remain the same */
+    .tax-toggle {
+        border: 1px solid black;
+        border-radius: 1rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    /* --- Media Query for Small Screens --- */
+    @media (max-width: 768px) {
+        .filters-wrapper {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .filters-container {
+        justify-content: center; /* Center the button on mobile */
+        }
+        #filters {
+        width: 100%; /* Ensure it takes up available width when expanded */
+        }
+    }
+
+
+    /* --- Styles for individual filter items --- */
+    .filter {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 64px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    /* ADDED: Hover effect for the entire filter item */
+    .filter:hover {
+        transform: scale(1.1);
+    }
+
+    /* ADDED: Base styles for the icon */
+    .filter i {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        color: #333;
+        /* This transition makes the hover animation smooth */
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    /* ADDED: Hover effect for the icon */
+    .filter:hover i {
+        transform: translateY(-5px);
+        color: #fe424d; /* highlight on hover */
+    }
+
+    /* ADDED: Base styles for the label text */
+    .filter p {
+        font-size: 0.75rem;
+        color: #444;
+        text-align: center;
+    }
+
+    /* ADDED: Custom styling for the theme-colored switch */
+    .form-switch.form-switch-theme .form-check-input:checked {
+        background-color: #fe424d;
+        border-color: #fe424d;
+    }
+
+    .form-switch.form-switch-theme .form-check-input:focus {
+        --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fe424d'/%3e%3c/svg%3e");
+        box-shadow: 0 0 0 0.25rem rgba(254, 66, 77, 0.25);
+    }
+
+</style>
+
+
+<div class="filters-wrapper">
+    <div class="filters-container" id="filters-container">
+        <div id="filters">
+        <div class="filter">
+            <div><i class="fa-solid fa-fire"></i></div>
+            <p>Trending</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-bed"></i></div>
+            <p>Rooms</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-mountain-city"></i></div>
+            <p>Iconic Cities</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-mountain"></i></div>
+            <p>Mountains</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-brands fa-fort-awesome"></i></div>
+            <p>Castles</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-person-swimming"></i></div>
+            <p>Amazing Pools</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-campground"></i></div>
+            <p>Camping</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-tractor"></i></div>
+            <p>Farms</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-snowman"></i></div>
+            <p>Arctic</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-umbrella-beach"></i></div>
+            <p>Beachfront</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-house-flood-water"></i></div>
+            <p>Cabins</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-house-chimney"></i></div>
+            <p>Tiny Homes</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-paint-roller"></i></div>
+            <p>Design</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-water"></i></div>
+            <p>Lakefront</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-person-skiing"></i></div>
+            <p>Skiing</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-landmark"></i></div>
+            <p>Historical</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-paw"></i></div>
+            <p>Pet-friendly</p>
+        </div>
+
+        <div class="filter">
+            <div><i class="fa-solid fa-gem"></i></div>
+            <p>Luxury</p>
+        </div>
+    </div>
+
+        <button id="expand-filters-btn" class="btn btn-outline-dark">
+            <i class="fa-solid fa-sliders"></i> &nbsp; Filters
+        </button>
+    </div>
+
+    <div class="tax-toggle">
+        <div class="form-check-reverse form-switch form-switch-theme">
+            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+            <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+        </div>
+    </div>
+</div>
+
 
 
 <!-- <div class="row row-cols-3"> --> <!-- no responsive layout -->
@@ -26,6 +297,7 @@
                         <b><%= listing.title %></b>
                         <br>
                         &#8377 <%=  listing.price.toLocaleString("en-IN") %> / night
+                        <i class="tax-info"> &nbsp;&nbsp; +18% GST &nbsp;&nbsp; = &nbsp;&nbsp; <b>&#8377 <%=  (listing.price*1.18).toLocaleString("en-IN") %></b> </i>
                     </p>
                     <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
                 </div>
@@ -36,14 +308,34 @@
 </div>
 
 
+<script>
+    // Your existing tax switch script
+    let taxSwitch = document.getElementById("switchCheckDefault");
+    taxSwitch.addEventListener("click", () => {
+        let taxInfo = document.getElementsByClassName("tax-info");
+        for (info of taxInfo) {
+            if (info.style.display != "inline") {
+                info.style.display = "inline";
+            } else {
+                info.style.display = "none";
+            }
+        }
+    });
 
-<!-- previous demonstration listing code -->
+    // NEW: Script for expanding/shrinking the filters
+    const expandBtn = document.getElementById("expand-filters-btn");
+    const filtersContainer = document.getElementById("filters-container");
 
-<!-- 
-<ul>
-    <% for(let listing of allListings){ %>
-         <% /* each listing anchor tag will redirect to the show/view individual listing details route*/ %>
-        <li><a href="/listings/<%= listing._id %>"> <%= listing.title %> </a></li>
-    <%  } %>
-</ul> 
--->
+    expandBtn.addEventListener("click", () => {
+        // This single line adds the 'expanded' class if it's not there,
+        // and removes it if it is.
+        filtersContainer.classList.toggle("expanded");
+    });
+
+</script>
+
+
+
+
+
+
