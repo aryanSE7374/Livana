@@ -47,6 +47,10 @@ body{
     font-size: 1.2rem;
     margin-right: 1rem ;
 }
+.f-info-socials a{
+    text-decoration: none;
+    color: #222222;
+}
 
 
 .f-info{
@@ -164,4 +168,25 @@ body{
     z-index: 1; /* Ensures menu is on top of the map */
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Adds a subtle shadow */
+}
+
+
+/* error */
+.custom-error {
+  display: flex;
+  flex-direction: column;   /* stack message + button vertically */
+  justify-content: center;  /* center vertically */
+  align-items: center;      /* center horizontally */
+  text-align: center;       /* center text inside <p> */
+}
+
+/* error page redirect to home btn */
+.red-home-btn {
+  background-color: #fe424d;
+  border-color: #fe424d;
+  color: #fff;
+}
+.red-home-btn:hover {
+  background-color: #e63946; /* slightly darker for hover */
+  border-color: #e63946;
 }

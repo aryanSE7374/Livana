@@ -1,7 +1,23 @@
 <% layout('/layouts/boilerplate') %>
 
-<div class="row mt-3">
+<!-- <div class="row mt-3">
     <div class="alert alert-danger col-6 offset-3" role="alert">
-        <p class="alert-heading" ><%= message %></p>
+        <div class="custom-error">
+            <h3 class="alert-heading" ><%= message %></h3>
+            <a href="/" class="btn btn-dark mt-3">Back to Home</a>
+        </div>
     </div>
+    
+</div> -->
+
+
+<div class="row mt-5">
+  <div class="col-6 offset-3">
+    <div class="alert alert-danger text-center p-4">
+      <h3 class="mb-3">404 - Page Not Found</h3>
+      <p>Sorry, the page you are looking for doesn't exist or has been moved.</p>
+      <p>error message : <b><%= message %></b> </p>
+      <a href="/" class="btn btn-danger red-home-btn mt-3">Back to Home</a>
+    </div>
+  </div>
 </div>

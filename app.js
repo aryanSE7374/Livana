@@ -15,6 +15,7 @@ const ejsMate = require("ejs-mate");
 // const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -26,7 +27,7 @@ const User = require("./models/user.js");
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
-
+const miscRouter = require("./routes/misc.js");
 
 // ------------------------------------------------------------------------------------------- //
 
@@ -39,7 +40,8 @@ const userRouter = require("./routes/user.js");
 
 
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/livana";
+// const db_URL = process.env.LOCAL_DB_URL; // for development phase
+const db_URL = process.env.ATLASDB_URL; // for deployement
 
 main()
   .then(()=>{
@@ -51,7 +53,7 @@ main()
 
 
 async function main(){
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(db_URL);
 }
 
 // ------------------------------------------------------------------------------------------- //
@@ -64,11 +66,26 @@ app.engine('ejs' , ejsMate);
 app.use(express.static(path.join(__dirname , "/public")));
 // app.use(express.json());
 
+const store = MongoStore.create({
+  mongoUrl: db_URL,
+  // mongoOptions: advancedOptions,
+  crypto:{
+    secret : process.env.SESSION_STORE_SECRET
+  },
+  touchAfter : 24*2600 // 24 hrs in seconds
+
+});
+
+store.on("error" , ()=>{
+  console.log("ERROR in MONGO SESSION STORE!!" , err);
+});
+
 const sessionOptions = {
-  secret : "supersecretcode",
+  store, // store : store,
+  secret : process.env.SESSION_STORE_SECRET,
   resave : false,
   saveUninitialized : true,
-  cooke : {
+  cookie : {
     expires : Date.now() + 7*24*60*60*1000 ,
     maxAge :  7*24*60*60*1000 ,
     httpOnly : true ,
@@ -120,6 +137,7 @@ app.get("/demoUser" , async (req , res) => {
 */
 
 app.use("/listings" , listingRouter);
+app.use("/misc" , miscRouter);
 app.use("/listings/:id/reviews" , reviewRouter);
 app.use("/" , userRouter);
 
@@ -128,7 +146,7 @@ app.use("/" , userRouter);
 
 
 
-// these two not worked , hence commented
+// these two universal route handlers not worked , hence commented
 
 // * route try , not even this one
 
@@ -170,39 +188,6 @@ app.listen(PORT , ()=>{
     console.log("------------------------------------------------------------------------");
 });
 
-
-
-
-// app.use('*', (req, res) => {
-//   res.status(404).send('Not Found');
-// });
-
-// // custom error handler middleware
-
-// app.use((err, req , res , next)=>{
-//   // res.send("something went wrong!");
-//   let {statusCode , message} = err;
-//   res.status(statusCode).send(message);
-// });
-
-/*
-
-
-
-// test route
-
-app.get("/testListing" , async (req , res)=>{
-  let sampleListing = new Listing({
-    title : "My New Villa",
-    description : "By the beach",
-    price : 1200,
-    location : "Dubai",
-    country : "United Arab Emirates", 
-  });
-  await sampleListing.save();
-  console.log("sample was saved");
-  res.send("Successful testing");
-  
-});
-*/
-
+// ------------------------------------------------------------------------------------------ //
+// ----------------------------------------END OF APP---------------------------------------- //
+// ------------------------------------------------------------------------------------------ //
