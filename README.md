@@ -1,6 +1,7 @@
-# Livana — Airbnb Clone
+# Livana — Your Marketplace for Short-Term Rentals
 
-A full‑stack web application inspired by Airbnb, built to provide a smooth experience for booking and hosting unique stays.  
+A full‑stack web application, built to provide a smooth experience for booking and hosting unique stays. It connects people who want to rent out their properties (hosts) with travelers looking for short-term accommodations (guests).
+The platform is built on trust, using verified identities and guest/host reviews to help users find and book places securely. 
 Developed using Node.js, Express, MongoDB, EJS, and Mapbox, with user authentication, image uploading, geolocation mapping, and CRUD listings.
 
 ---
@@ -126,11 +127,34 @@ http://localhost:8080
 
 ---
 
+
 ## 🖼️ Screenshots
+
+
+
 (Place screenshot images in a `screenshots/` or `public/images/` folder and link them below.)
 
-![Homepage](./screenshots/home.png)
-![Listing Page](./screenshots/listing.png)
+## Homepage
+<img height="250" alt="Screenshot 2025-12-02 at 6 38 51 PM" src="https://github.com/user-attachments/assets/da95fbf6-5856-4428-8dcf-66553d6d7ceb" />
+
+## Login Page
+<img height="250" alt="Screenshot 2025-12-02 at 6 40 35 PM" src="https://github.com/user-attachments/assets/36819845-9181-46c6-afa7-6a9069e7a0c0" />
+
+## Add Listing Page
+<img height="250" alt="Screenshot 2025-12-02 at 6 45 59 PM" src="https://github.com/user-attachments/assets/917087b3-411c-4034-869d-473b5daf067d" />
+
+## Map Preview of Sample Listing
+<img height="250" alt="Screenshot 2025-12-02 at 6 47 07 PM" src="https://github.com/user-attachments/assets/5785b1a0-5bd0-4df4-bc9b-4cd555b2dde7" />
+
+## Edit Listing Page
+<img height="250" alt="Screenshot 2025-12-02 at 6 48 16 PM" src="https://github.com/user-attachments/assets/9793a5ba-53ce-406c-8480-e20450632302" />
+
+
+<!--
+
+<img width="500" height="500" alt="livana-logo" src="https://github.com/user-attachments/assets/b807fe82-2568-4e8b-96a8-d66e38f49da7" />
+
+-->
 
 ---
 
