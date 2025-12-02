@@ -53,25 +53,27 @@ express, mongoose, passport, passport-local, passport-local-mongoose, ejs, ejs-m
 
 Use the tree below to get a quick overview of the repository layout:
 
+```
 Livana/
+├── .env
+├── README.md
 ├── app.js
 ├── package.json
-├── package-lock.json
+├── controllers/
+├── middleware/
+├── models/
 ├── public/
 │   ├── css/
-│   ├── js/
-│   └── images/
-├── views/
-│   ├── layouts/
-│   ├── partials/
-│   └── *.ejs
-├── models/
+│   ├── images/
+│   └── js/
 ├── routes/
-├── controllers/
 ├── utils/
-├── middleware/
-├── .env
-└── README.md
+└── views/
+    ├── layouts/
+    ├── partials/
+    └── index.ejs
+```
+
 
 Notes:
 - /public contains static assets served to clients (CSS, client JS, images).
