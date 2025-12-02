@@ -122,7 +122,7 @@ Production mode:
 npm start
 
 By default the app runs on:
-http://localhost:3000
+http://localhost:8080
 
 ---
 
