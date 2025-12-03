@@ -6,6 +6,12 @@ Developed using Node.js, Express, MongoDB, EJS, and Mapbox, with user authentica
 
 ---
 
+# 🔗 Live Link
+
+[https://livana.onrender.com](https://livana.onrender.com/)
+
+---
+
 ## 🚀 Features
 - 🔐 Authentication
   - Secure user signup/login using Passport.js
@@ -131,8 +137,6 @@ http://localhost:8080
 ## 🖼️ Screenshots
 
 
-
-(Place screenshot images in a `screenshots/` or `public/images/` folder and link them below.)
 
 ## Homepage
 <img height="250" alt="Screenshot 2025-12-02 at 6 38 51 PM" src="https://github.com/user-attachments/assets/da95fbf6-5856-4428-8dcf-66553d6d7ceb" />
