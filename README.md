@@ -37,7 +37,7 @@ Developed using Node.js, Express, MongoDB, EJS, and Mapbox, with user authentica
 Frontend
 - HTML, CSS, JavaScript
 - EJS templating
-- Bootstrap / Custom CSS (if used)
+- Bootstrap + Custom CSS
 
 Backend
 - Node.js, Express.js
