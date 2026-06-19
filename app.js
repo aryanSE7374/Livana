@@ -28,6 +28,7 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 const miscRouter = require("./routes/misc.js");
+const paymentRouter = require("./routes/payment.js");
 
 // ------------------------------------------------------------------------------------------- //
 
@@ -64,7 +65,7 @@ app.use(express.urlencoded({extended : true}));
 app.use(methodOverride("_method"));
 app.engine('ejs' , ejsMate);
 app.use(express.static(path.join(__dirname , "/public")));
-// app.use(express.json());
+app.use(express.json());
 
 const store = MongoStore.create({
   mongoUrl: db_URL,
@@ -140,6 +141,7 @@ app.use("/listings" , listingRouter);
 app.use("/misc" , miscRouter);
 app.use("/listings/:id/reviews" , reviewRouter);
 app.use("/" , userRouter);
+app.use("/payment" , paymentRouter);
 
 
 // ------------------------------------------------------------------------------------------- //

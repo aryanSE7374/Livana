@@ -23,6 +23,13 @@
             <p class="card-text"> &#8377 <%= listing.price.toLocaleString("en-IN")  %> </p>
             <p class="card-text"> <%= listing.location  %> </p>
             <p class="card-text"> <%= listing.country  %>  </p>
+            <% if(listing.category && listing.category.length > 0) { %>
+                <div class="mt-3">
+                    <% for(let cat of listing.category) { %>
+                        <span class="badge rounded-pill text-dark me-1" style="background-color: #f0f0f0; border: 1px solid #ddd; font-weight: normal;"><%= cat %></span>
+                    <% } %>
+                </div>
+            <% } %>
         </div>
     </div>
 
@@ -35,6 +42,53 @@
             <form method="post" action="/listings/<%= listing._id %>?_method=DELETE">
                 <button class="btn btn-dark offset-5"> Delete </button>
             </form>
+        </div>
+    <% } %>
+
+    <% if(currUser && !currUser._id.equals(listing.owner._id)) { %>
+        <div class="col-6 offset-3 mt-2 mb-2">
+            <button class="btn btn-dark w-100" type="button" data-bs-toggle="collapse" data-bs-target="#bookingPanel" aria-expanded="false" aria-controls="bookingPanel" style="font-size: 1.1rem; padding: 0.6rem; background-color: #fe424d; border-color: #fe424d;">
+                Check Availability & Book
+            </button>
+            
+            <div class="collapse mt-3" id="bookingPanel">
+                <div class="card card-body shadow-sm border-0 bg-light">
+                    <h5 class="mb-3">Select your dates</h5>
+                    <div id="calendar-container" class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <button class="btn btn-sm btn-outline-secondary" id="prev-month">&lt;</button>
+                            <h6 id="current-month-year" class="mb-0"></h6>
+                            <button class="btn btn-sm btn-outline-secondary" id="next-month">&gt;</button>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-day-header">Su</div>
+                            <div class="calendar-day-header">Mo</div>
+                            <div class="calendar-day-header">Tu</div>
+                            <div class="calendar-day-header">We</div>
+                            <div class="calendar-day-header">Th</div>
+                            <div class="calendar-day-header">Fr</div>
+                            <div class="calendar-day-header">Sa</div>
+                        </div>
+                        <div id="calendar-days" class="calendar-grid mt-1"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <div><span class="calendar-legend available"></span> Available</div>
+                        <div><span class="calendar-legend booked"></span> Booked</div>
+                        <div><span class="calendar-legend selected"></span> Selected</div>
+                    </div>
+                    
+                    <div id="booking-summary" style="display: none;">
+                        <hr>
+                        <p class="mb-1 d-flex justify-content-between"><span>&#8377 <%= listing.price.toLocaleString("en-IN") %> x <span id="nights-count">1</span> nights</span> <span>&#8377 <span id="total-price">0</span></span></p>
+                        <p class="mb-3 text-muted small">Taxes and fees not included</p>
+                        <button id="book-now-btn" class="btn btn-dark w-100" style="font-size: 1.1rem; padding: 0.6rem;">
+                            Pay & Book Now &mdash; &#8377 <span id="btn-total-price">0</span>
+                        </button>
+                    </div>
+                    <p id="booking-instruction" class="text-center text-muted small mt-2">Select a check-in and check-out date.</p>
+                </div>
+            </div>
         </div>
     <% } %>
     
@@ -93,7 +147,7 @@
         <% } %>
     </div>
     <!-- Show Map -->
-    <div class="col-8 offset-3 mb-3">
+    <div class="col-md-8 col-12 offset-md-3 mb-3">
         <h3>Where you will be</h3>
         <div class="map-container">
             <div id="map" ></div>
@@ -115,3 +169,239 @@
     </div>
 </div>
 <script src="/js/map.js"></script>
+
+<% if(currUser && !currUser._id.equals(listing.owner._id)) { %>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const bookBtn = document.getElementById("book-now-btn");
+        const panel = document.getElementById("bookingPanel");
+        if (!panel) return;
+
+        // Calendar elements
+        const calendarDays = document.getElementById("calendar-days");
+        const monthYearStr = document.getElementById("current-month-year");
+        const prevMonthBtn = document.getElementById("prev-month");
+        const nextMonthBtn = document.getElementById("next-month");
+        const bookingSummary = document.getElementById("booking-summary");
+        const nightsCountEl = document.getElementById("nights-count");
+        const totalPriceEl = document.getElementById("total-price");
+        const btnTotalPriceEl = document.getElementById("btn-total-price");
+        const bookingInstruction = document.getElementById("booking-instruction");
+
+        let currentDate = new Date();
+        currentDate.setDate(1); // Start at beginning of month
+
+        let checkInDate = null;
+        let checkOutDate = null;
+        let bookedDates = [];
+        let totalAmount = 0;
+        
+        const pricePerNight = <%= listing.price %>;
+
+        // Fetch availability from server
+        try {
+            const res = await fetch("/payment/availability/<%= listing._id %>");
+            if(res.ok) {
+                const data = await res.json();
+                if(data.success) bookedDates = data.bookedDates;
+            }
+        } catch(e) {
+            console.error("Could not fetch availability", e);
+        }
+
+        function isBooked(date) {
+            const dStr = date.toISOString().split('T')[0];
+            return bookedDates.some(bd => dStr >= bd.start && dStr < bd.end); // end date is checkout day, which is available for checkin
+        }
+
+        function isPast(date) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            return date < today;
+        }
+
+        function renderCalendar() {
+            calendarDays.innerHTML = "";
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            monthYearStr.textContent = new Date(year, month).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Padding days before start of month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement("div");
+                calendarDays.appendChild(emptyCell);
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDate = new Date(year, month, i, 12, 0, 0, 0); // Noon to avoid timezone shifts
+                const dayCell = document.createElement("div");
+                dayCell.classList.add("calendar-day");
+                dayCell.textContent = i;
+
+                if (isPast(dayDate)) {
+                    dayCell.classList.add("past");
+                } else if (isBooked(dayDate)) {
+                    dayCell.classList.add("booked");
+                } else {
+                    dayCell.classList.add("available");
+                    
+                    // Highlight selected range
+                    if (checkInDate && checkOutDate) {
+                        if (dayDate >= checkInDate && dayDate <= checkOutDate) {
+                            dayCell.classList.add("selected");
+                        }
+                    } else if (checkInDate) {
+                        if (dayDate.getTime() === checkInDate.getTime()) {
+                            dayCell.classList.add("selected");
+                        }
+                    }
+
+                    // Click handler
+                    dayCell.addEventListener("click", () => handleDateClick(dayDate));
+                }
+
+                calendarDays.appendChild(dayCell);
+            }
+        }
+
+        function handleDateClick(date) {
+            if (!checkInDate || (checkInDate && checkOutDate)) {
+                // First click or reset
+                checkInDate = date;
+                checkOutDate = null;
+                bookingSummary.style.display = "none";
+                bookingInstruction.textContent = "Select checkout date.";
+            } else if (date < checkInDate) {
+                // Clicked before check-in, reset check-in
+                checkInDate = date;
+            } else {
+                // Selecting check-out
+                // Validate no booked dates in between
+                let valid = true;
+                let temp = new Date(checkInDate);
+                while (temp < date) {
+                    if (isBooked(temp)) {
+                        valid = false;
+                        break;
+                    }
+                    temp.setDate(temp.getDate() + 1);
+                }
+
+                if (!valid) {
+                    alert("Your selected range includes booked dates. Please try another range.");
+                    checkInDate = date; // Reset to this date
+                } else {
+                    checkOutDate = date;
+                    const nights = Math.max(1, Math.round((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)));
+                    totalAmount = nights * pricePerNight;
+                    
+                    nightsCountEl.textContent = nights;
+                    totalPriceEl.textContent = totalAmount.toLocaleString("en-IN");
+                    btnTotalPriceEl.textContent = totalAmount.toLocaleString("en-IN");
+                    
+                    bookingSummary.style.display = "block";
+                    bookingInstruction.textContent = "";
+                }
+            }
+            renderCalendar();
+        }
+
+        prevMonthBtn.addEventListener("click", () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener("click", () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        // Payment handler
+        if (bookBtn) {
+            bookBtn.addEventListener("click", async () => {
+                try {
+                    if (!checkInDate || !checkOutDate) return alert("Please select dates");
+                    
+                    bookBtn.disabled = true;
+                    bookBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Processing...';
+
+                    const res = await fetch("/payment/create-order", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            amount: totalAmount,
+                            listing_id: "<%= listing._id %>",
+                            checkIn: checkInDate.toISOString(),
+                            checkOut: checkOutDate.toISOString()
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (!data.success) {
+                        alert("Could not create order: " + (data.message || "Unknown error"));
+                        bookBtn.disabled = false;
+                        bookBtn.innerHTML = `Pay & Book Now &mdash; &#8377 ${totalAmount.toLocaleString("en-IN")}`;
+                        return;
+                    }
+
+                    const options = {
+                        key: "<%= process.env.RAZORPAY_KEY_ID %>",
+                        amount: data.order.amount,
+                        currency: data.order.currency,
+                        name: "Livana",
+                        description: "Booking: <%= listing.title %>",
+                        order_id: data.order.id,
+                        handler: async function (response) {
+                            // Add our custom data to the verification payload
+                            response.checkIn = checkInDate.toISOString();
+                            response.checkOut = checkOutDate.toISOString();
+                            response.amount = totalAmount;
+                            response.listing_id = "<%= listing._id %>";
+                            
+                            const verifyRes = await fetch("/payment/verify", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(response)
+                            });
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.success) {
+                                window.location.href = "/profile"; // redirect to profile on success
+                            } else {
+                                alert("Payment verification failed!");
+                                window.location.reload();
+                            }
+                        },
+                        prefill: {
+                            name: "<%= currUser.username %>",
+                            email: "<%= currUser.email || '' %>",
+                        },
+                        theme: {
+                            color: "#fe424d"
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                bookBtn.disabled = false;
+                                bookBtn.innerHTML = `Pay & Book Now &mdash; &#8377 ${totalAmount.toLocaleString("en-IN")}`;
+                            }
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                } catch (err) {
+                    console.error("Payment error:", err);
+                    alert("Something went wrong. Please try again.");
+                    bookBtn.disabled = false;
+                    bookBtn.innerHTML = `Pay & Book Now &mdash; &#8377 ${totalAmount.toLocaleString("en-IN")}`;
+                }
+            });
+        }
+
+        renderCalendar();
+    });
+</script>
+<% } %>

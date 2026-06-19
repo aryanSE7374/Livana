@@ -1,0 +1,149 @@
+<% layout("/layouts/boilerplate")  %>
+
+<div class="row mt-4 mb-4">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <i class="fa-solid fa-user-circle fa-5x text-secondary mb-3"></i>
+                <h4 class="card-title"><%= currUser.username %></h4>
+                <p class="card-text text-muted"><%= currUser.email %></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <!-- Bookings Section -->
+        <h3 class="mb-3">My Bookings</h3>
+        
+        <div class="accordion mb-5" id="bookingsAccordion">
+            <div class="accordion-item border-0 shadow-sm mb-3" style="border-left: 4px solid #198754 !important;">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#upcomingBookings" aria-expanded="true">
+                        <b>Upcoming Bookings (<%= upcomingBookings.length %>)</b>
+                    </button>
+                </h2>
+                <div id="upcomingBookings" class="accordion-collapse collapse show" data-bs-parent="#bookingsAccordion">
+                    <div class="accordion-body">
+                        <% if(upcomingBookings.length === 0) { %>
+                            <p class="text-muted">No upcoming bookings.</p>
+                        <% } else { %>
+                            <div class="row row-cols-1 row-cols-md-2 g-3">
+                                <% for(let booking of upcomingBookings) { %>
+                                    <div class="col">
+                                        <div class="card h-100 border-0 shadow-sm bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <a href="/listings/<%= booking.listing._id %>" class="text-decoration-none text-dark">
+                                                        <%= booking.listing.title %>
+                                                    </a>
+                                                </h5>
+                                                <p class="card-text mb-1"><small class="text-muted"><i class="fa-solid fa-location-dot"></i> <%= booking.listing.location %></small></p>
+                                                <hr>
+                                                <p class="mb-1"><b>Check-in:</b> <%= booking.checkIn.toDateString() %></p>
+                                                <p class="mb-1"><b>Check-out:</b> <%= booking.checkOut.toDateString() %></p>
+                                                <p class="mb-0 mt-2"><b>Amount:</b> &#8377 <%= booking.amount.toLocaleString("en-IN") %> <span class="badge bg-success float-end"><%= booking.status %></span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 shadow-sm mb-3" style="border-left: 4px solid #6c757d !important;">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pastBookings" aria-expanded="false">
+                        <b>Past Bookings (<%= pastBookings.length %>)</b>
+                    </button>
+                </h2>
+                <div id="pastBookings" class="accordion-collapse collapse" data-bs-parent="#bookingsAccordion">
+                    <div class="accordion-body">
+                        <% if(pastBookings.length === 0) { %>
+                            <p class="text-muted">No past bookings.</p>
+                        <% } else { %>
+                            <div class="row row-cols-1 row-cols-md-2 g-3">
+                                <% for(let booking of pastBookings) { %>
+                                    <div class="col">
+                                        <div class="card h-100 border-0 shadow-sm bg-light">
+                                            <div class="card-body text-muted">
+                                                <h5 class="card-title">
+                                                    <a href="/listings/<%= booking.listing._id %>" class="text-decoration-none text-secondary">
+                                                        <%= booking.listing.title %>
+                                                    </a>
+                                                </h5>
+                                                <p class="card-text mb-1"><small><i class="fa-solid fa-location-dot"></i> <%= booking.listing.location %></small></p>
+                                                <hr>
+                                                <p class="mb-1"><small><b>Check-in:</b> <%= booking.checkIn.toDateString() %></small></p>
+                                                <p class="mb-1"><small><b>Check-out:</b> <%= booking.checkOut.toDateString() %></small></p>
+                                                <p class="mb-0 mt-2"><small><b>Amount:</b> &#8377 <%= booking.amount.toLocaleString("en-IN") %></small> <span class="badge bg-secondary float-end"><%= booking.status %></span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Listings Section -->
+        <h3 class="mb-3 mt-4">My Listings (<%= myListings.length %>)</h3>
+        <% if(myListings.length === 0) { %>
+            <p class="text-muted">You haven't created any listings yet. <a href="/listings/new">List your home now.</a></p>
+        <% } else { %>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <% for(let listing of myListings) { %>
+                    <div class="col">
+                        <a href="/listings/<%= listing._id %>" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm listing-card-small">
+                                <div class="row g-0">
+                                    <div class="col-4">
+                                        <img src="<%= listing.image.url %>" class="img-fluid rounded-start object-fit-cover" style="aspect-ratio: 1 / 1;" alt="<%= listing.title %>">
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="card-body py-2 px-3">
+                                            <h6 class="card-title text-dark mb-1 text-truncate"><%= listing.title %></h6>
+                                            <p class="card-text text-muted mb-1"><small><i class="fa-solid fa-location-dot"></i> <%= listing.location %></small></p>
+                                            <p class="card-text text-dark"><small><b>&#8377 <%= listing.price.toLocaleString("en-IN") %> / night</b></small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+
+        <!-- Received Bookings Section -->
+        <h3 class="mb-3 mt-5">Bookings on My Listings</h3>
+        <% if(receivedBookings.length === 0) { %>
+            <p class="text-muted">No one has booked your listings yet.</p>
+        <% } else { %>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <% for(let booking of receivedBookings) { %>
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm bg-light" style="border-left: 4px solid #fe424d !important;">
+                            <div class="card-body py-2 px-3">
+                                <h6 class="card-title text-dark mb-1 text-truncate">
+                                    <a href="/listings/<%= booking.listing._id %>" class="text-decoration-none text-dark">
+                                        <%= booking.listing.title %>
+                                    </a>
+                                </h6>
+                                <p class="card-text text-muted mb-1"><small>Booked by <b><%= booking.guest.username %></b></small></p>
+                                <hr class="my-1">
+                                <p class="mb-0"><small><b>Check-in:</b> <%= booking.checkIn.toDateString() %></small></p>
+                                <p class="mb-0"><small><b>Check-out:</b> <%= booking.checkOut.toDateString() %></small></p>
+                                <p class="mb-0 mt-1"><small><b>Earned:</b> &#8377 <%= booking.amount.toLocaleString("en-IN") %></small> <span class="badge bg-danger float-end"><%= booking.status %></span></p>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+
+    </div>
+</div>

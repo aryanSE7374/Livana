@@ -36,12 +36,9 @@ const listingSchema = new Schema ({
             required: true
         }
     },
-    /*
-    // to add filter feature
-    category: {
+    category: [{
         type: String,
         enum: [
-            "Trending",
             "Rooms",
             "Iconic Cities",
             "Mountains",
@@ -60,8 +57,7 @@ const listingSchema = new Schema ({
             "Pet-friendly",
             "Luxury"
         ]
-    }
-    */
+    }]
 })
 
 listingSchema.post("findOneAndDelete", async(listing) => {

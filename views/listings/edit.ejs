@@ -56,6 +56,21 @@
                 <div class="invalid-feedback">Location should be valid</div>
             </div>
         
+            <div class="mb-3">
+                <label class="form-label">Categories (Select up to 3):</label>
+                <div class="row px-3" id="category-container">
+                    <% const categories = ["Rooms", "Iconic Cities", "Mountains", "Arctic", "Beachfront", "Castles", "Amazing Pools", "Camping", "Farms", "Cabins", "Tiny Homes", "Design", "Lakefront", "Skiing", "Historical", "Pet-friendly", "Luxury"]; %>
+                    <% const selectedCats = listing.category || []; %>
+                    <% for(let i=0; i<categories.length; i++) { %>
+                        <div class="col-md-4 col-sm-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input category-checkbox" type="checkbox" name="listing[category][]" value="<%= categories[i] %>" id="cat<%= i %>" <%= selectedCats.includes(categories[i]) ? "checked" : "" %>>
+                                <label class="form-check-label" for="cat<%= i %>"><%= categories[i] %></label>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
         
             <button class = "btn btn-dark edit-btn mt-3" >Edit</button>
            
@@ -63,3 +78,28 @@
 
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const checkboxes = document.querySelectorAll('.category-checkbox');
+        
+        function updateDisabledState() {
+            const checked = document.querySelectorAll('.category-checkbox:checked');
+            if (checked.length >= 3) {
+                checkboxes.forEach(box => {
+                    if (!box.checked) box.disabled = true;
+                });
+            } else {
+                checkboxes.forEach(box => box.disabled = false);
+            }
+        }
+        
+        // Initial state
+        updateDisabledState();
+        
+        // On change
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateDisabledState);
+        });
+    });
+</script>

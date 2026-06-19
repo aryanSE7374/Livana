@@ -24,7 +24,10 @@
 
             <div class="mb-3">
                 <label for="image" class="form-label">Upload Listing Image</label>
-                <input name="listing[image]"  type="file" class="form-control" required>
+                <input name="listing[image]" id="image-upload" type="file" class="form-control" required>
+                <div class="mt-2">
+                    <img id="image-preview" src="" alt="Image Preview" style="display: none; max-width: 250px; border-radius: 10px;">
+                </div>
             </div>
 
             <div class="row">
@@ -50,8 +53,60 @@
                 <div class="invalid-feedback">Location should be valid</div>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Categories (Select up to 3):</label>
+                <div class="row px-3" id="category-container">
+                    <% const categories = ["Rooms", "Iconic Cities", "Mountains", "Arctic", "Beachfront", "Castles", "Amazing Pools", "Camping", "Farms", "Cabins", "Tiny Homes", "Design", "Lakefront", "Skiing", "Historical", "Pet-friendly", "Luxury"]; %>
+                    <% for(let i=0; i<categories.length; i++) { %>
+                        <div class="col-md-4 col-sm-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input category-checkbox" type="checkbox" name="listing[category][]" value="<%= categories[i] %>" id="cat<%= i %>">
+                                <label class="form-check-label" for="cat<%= i %>"><%= categories[i] %></label>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
             <button class="btn btn-dark add-btn mt-3" >Add</button>
         
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const checkboxes = document.querySelectorAll('.category-checkbox');
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const checked = document.querySelectorAll('.category-checkbox:checked');
+                if (checked.length >= 3) {
+                    checkboxes.forEach(box => {
+                        if (!box.checked) box.disabled = true;
+                    });
+                } else {
+                    checkboxes.forEach(box => box.disabled = false);
+                }
+            });
+        });
+
+        // Image Preview Logic
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        
+        imageUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+                imagePreview.src = '';
+            }
+        });
+    });
+</script>

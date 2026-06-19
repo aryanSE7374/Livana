@@ -5,9 +5,22 @@ const geocodingClient = mbxGeocoding({accessToken : mapToken});
 
 module.exports.index = async (req , res)=>{
     console.log("get request recieved!");
-    const allListings = await Listing.find({});
+    let query = {};
+    const searchQuery = req.query.q;
+    if(searchQuery && searchQuery.trim() !== ""){
+        const regex = new RegExp(searchQuery.trim(), "i");
+        query = {
+            $or: [
+                { title: regex },
+                { description: regex },
+                { location: regex },
+                { country: regex }
+            ]
+        };
+    }
+    const allListings = await Listing.find(query);
     console.log("------------------------------------------------------------------------");
-    res.render("listings/index.ejs" , {allListings});
+    res.render("listings/index.ejs" , {allListings, searchQuery: searchQuery || ""});
 };
 
 module.exports.renderNewForm = (req,res)=>{
