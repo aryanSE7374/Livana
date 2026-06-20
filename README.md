@@ -2,7 +2,7 @@
 
 A full‑stack web application, built to provide a smooth experience for booking and hosting unique stays. It connects people who want to rent out their properties (hosts) with travelers looking for short-term accommodations (guests).
 The platform is built on trust, using verified identities and guest/host reviews to help users find and book places securely. 
-Developed using Node.js, Express, MongoDB, EJS, and Mapbox, with user authentication, image uploading, geolocation mapping, and CRUD listings.
+Developed using Node.js, Express, MongoDB, EJS, and Mapbox, with user authentication, image uploading, geolocation mapping, online payments, and CRUD listings.
 
 ---
 
@@ -21,6 +21,13 @@ Developed using Node.js, Express, MongoDB, EJS, and Mapbox, with user authentica
   - Upload multiple images using Multer + Cloudinary
 - 🗺️ Interactive Maps
   - Location-based listings using Mapbox Geocoding API
+- ⭐ Review & Ratings System
+  - Guests can leave detailed reviews and ratings on properties they visit
+- 💳 Booking & Payments
+  - Fully integrated booking system with online payment processing (Razorpay integration)
+  - Users can manage their upcoming and past bookings from their profile
+- 🔍 Categories & Filters
+  - Listings categorized for easier discovery (e.g., Beachfront, Iconic Cities, Mountains)
 - 💬 Flash Messages
   - Success/error alerts using connect-flash
 - 🔒 Sessions
@@ -44,6 +51,7 @@ Backend
 - MongoDB + Mongoose
 - Passport.js for authentication
 - Multer + Cloudinary for media uploads
+- Razorpay for payments
 
 APIs
 - Mapbox API for geolocation & maps
@@ -52,7 +60,7 @@ APIs
 
 ## 📦 Key Dependencies
 (see package.json for full list)
-express, mongoose, passport, passport-local, passport-local-mongoose, ejs, ejs-mate, cloudinary, multer, multer-storage-cloudinary, @mapbox/mapbox-sdk, connect-flash, connect-mongo, express-session, joi, dotenv, method-override
+express, mongoose, passport, passport-local, passport-local-mongoose, ejs, ejs-mate, cloudinary, multer, multer-storage-cloudinary, @mapbox/mapbox-sdk, connect-flash, connect-mongo, express-session, joi, dotenv, method-override, razorpay
 
 ---
 
@@ -116,6 +124,9 @@ MONGO_URL=mongodb://localhost:27017/livana
 
 SESSION_SECRET=your_secret
 
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+
 ---
 
 ## ▶️ Run the Project
@@ -163,12 +174,10 @@ http://localhost:8080
 ---
 
 ## 🔮 Future Scope
-- 💳 Payment Gateway (Razorpay Integration)
-- ⭐ Review & Ratings System
 - ❤️ Wishlist / Favorites
 - 📧 Email Notifications
 - 📱 Responsive design improvements
-- 🧭 Advanced search filters (price, amenities, location radius)
+- 🧭 Advanced search filters (amenities, location radius, booking availability)
 
 ---
 
